@@ -16,14 +16,15 @@ describe Storage do
   end
 end
 
-describe ScrabbleRules do
-  context 'constants tests' do
-    it 'returns board dimensions' do
-      expect(ScrabbleRules::BOARD_HEIGHT).to eq(15)
-    end
-
-    it 'board must be a square' do
-      expect(ScrabbleRules::BOARD_HEIGHT).to eq(ScrabbleRules::BOARD_WIDTH)
+describe Board do
+  board = Board.new
+  describe '#id_to_coords' do
+    it 'returns coordinates by id' do
+      expect(board.id_to_coords(0)).to eq([1, 1])
+      expect(board.id_to_coords(1)).to eq([1, 2])
+      expect(board.id_to_coords(15)).to eq([2, 1])
+      expect(board.id_to_coords(16)).to eq([2, 2])
+      expect(board.id_to_coords(224)).to eq([15, 15])
     end
   end
 end

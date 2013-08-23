@@ -5,10 +5,7 @@ class Tile
   end
 end
 
-
 module ScrabbleRules
-  BOARD_WIDTH = BOARD_HEIGHT = 15.freeze
-  BONUSES = { '3W' => [[1, 1], [1, 4]] }.freeze
   ALPHABET = { 'А' => [1, 17],
                'Б' => [2, 1],
                'В' => [2, 1],
@@ -43,6 +40,17 @@ module ScrabbleRules
   }.freeze
 end
 
+module ScrabbleBoard
+  BOARD_SIZE = 15
+  BONUSES = { '3W' => [[1, 1], [1, 4]] }.freeze
+
+  BOARD_FIELDS = BOARD_SIZE ** 2.freeze
+
+  def id_to_coords(id)
+    [id / BOARD_SIZE, id % BOARD_SIZE ].map { |x| x + 1 }
+  end
+end
+
 class Storage < Tile
   include ScrabbleRules
 
@@ -55,3 +63,28 @@ class Storage < Tile
     end
   end
 end
+
+class Field
+
+  def initialize(id, bonus)
+    @id, @bonus, @occupied = id, bonus, FALSE
+  end
+end
+
+class Board < Field
+  include ScrabbleBoard
+  def initialize
+    @fields = []
+    (BOARD_FIELDS).times do |id|
+
+    end
+  end
+
+  private
+
+  def field_bonus(id)
+    
+  end
+
+end
+
