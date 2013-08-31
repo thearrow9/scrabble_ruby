@@ -36,18 +36,18 @@ module ScrabbleSet
                'Ь' => [10, 1],
                'Ю' => [8, 1],
                'Я' => [5, 4],
-               '_' => [2, 2]
+               '_' => [0, 2]
   }.freeze
 end
 
 module ScrabbleRules
-  MAX_PLAYERS = 4
+  #MAX_PLAYERS = 4
   TILES_IN_RACK = 7
 end
 
 module ScrabbleBoard
   BOARD_SIZE = 15
-  BONUSES = { '3W' => [[1, 1], [1, 4]] }.freeze
+  BONUSES = { '3W' => [[1, 1], [1, 4]], '*' => [[8, 8]] }.freeze
   START_POSITION = [8, 8]
 
   BOARD_FIELDS = BOARD_SIZE ** 2.freeze
@@ -55,6 +55,11 @@ module ScrabbleBoard
   def id_to_coords(id)
     [id / BOARD_SIZE, id % BOARD_SIZE ].map { |x| x + 1 }
   end
+end
+
+module PrintSettings
+  FIELD_SIZE = 6
+  ROW_NAMES = Array('A'..'Z')
 end
 
 class Storage < Tile
@@ -71,6 +76,9 @@ class Storage < Tile
 end
 
 class Field
+
+  attr_reader :bonus
+
   def initialize(id, bonus)
     @id, @bonus, @occupied = id, bonus, false
   end
@@ -78,6 +86,8 @@ end
 
 class Board < Field
   include ScrabbleBoard
+
+  attr_reader :fields
 
   def initialize
     @fields = []
@@ -95,13 +105,42 @@ class Board < Field
   end
 end
 
-class SingleMove
+class GameOutput
+  include PrintSettings
+
   def write_word
+    prompt
+  end
+
+  def prompt
+    print '>>>> '
+    gets
+  end
+
+  def start_game
+    print File.read('help/welcome.txt')
+  end
+
+  def print_tiles(rack)
+    print 'Your tiles: '
+    rack.each { |char, points| print "#{char}(#{points}) " }
+    print "\n"
+  end
+
+  def print_board(board)
+    size = ScrabbleBoard::BOARD_SIZE
+    (1..size).each { |b| print b.to_s.center(6) }
+    print "c/r\n"
+
+    board.fields.each_slice(size) do |row|
+      row.each { |field| print field[1].nil? ? '.'.to_s.center(6) : field[1] .to_s.center(6) }
+      print ROW_NAMES[row.last[0] / size] + "\n"
+    end
 
   end
 end
 
-class Game < SingleMove
+class Game < GameOutput
   include ScrabbleRules
 
   attr_reader :storage
@@ -114,7 +153,10 @@ class Game < SingleMove
   end
 
   def start_game
+    super
     draw(tiles_needed)
+    print_board(@board)
+    print_tiles
     write_word
   end
 
@@ -131,6 +173,10 @@ class Game < SingleMove
     amount.times { @rack << @storage.list.pop }
   end
 
+  def print_tiles
+    super(@rack)
+  end
+
   def give_up
 
   end
@@ -142,4 +188,11 @@ class Game < SingleMove
   end
 end
 
-#first_game = Game.new
+class Notation
+  def self.save_game(game)
+
+  end
+end
+
+game = Game.new
+game.start_game
