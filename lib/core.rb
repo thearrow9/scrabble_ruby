@@ -36,7 +36,7 @@ module ScrabbleSet
                'Ь' => [10, 1],
                'Ю' => [8, 1],
                'Я' => [5, 4],
-               '_' => [0, 2]
+               '_' => [0, 0]
   }.freeze
 end
 
@@ -108,17 +108,19 @@ end
 class GameOutput
   include PrintSettings
 
-  def write_word
-    prompt
+  def start_game
+    print File.read('help/welcome.txt')
+  end
+
+  private
+
+  def print_help
+    print File.read('help/help.txt')
   end
 
   def prompt
     print '>>>> '
-    gets
-  end
-
-  def start_game
-    print File.read('help/welcome.txt')
+    gets.chomp
   end
 
   def print_tiles(rack)
@@ -136,29 +138,21 @@ class GameOutput
       row.each { |field| print field[1].nil? ? '.'.to_s.center(6) : field[1] .to_s.center(6) }
       print ROW_NAMES[row.last[0] / size] + "\n"
     end
-
   end
 end
 
-class Game < GameOutput
+class ScrabbleCore < GameOutput
   include ScrabbleRules
 
   attr_reader :storage
 
-  def initialize(players = 1, time_per_move = 60)
-    @players, @time_per_move = players, time_per_move
+  def initialize
     @board, @storage = Board.new, Storage.new
     @storage.list.shuffle!
     @rack = []
   end
 
-  def start_game
-    super
-    draw(tiles_needed)
-    print_board(@board)
-    print_tiles
-    write_word
-  end
+  private
 
   def tiles_needed
     if @storage.list.empty?
@@ -177,15 +171,60 @@ class Game < GameOutput
     super(@rack)
   end
 
-  def give_up
-
+  def print_board
+    super(@board)
   end
-
-  private
 
   def game_over
 
   end
+end
+
+module GameCommand
+end
+
+class Scrabble < ScrabbleCore
+  include GameCommand
+
+  def initialize
+    super
+  end
+
+  def start_game
+    super
+    loop do
+      draw(tiles_needed)
+      print_board
+      print_tiles
+      exec
+      break if game_over
+    end
+  end
+
+  private
+
+  def exec
+    to_call = Commander.execute(prompt)
+    #send(to_call[0], to_call[1])
+    send(*to_call)
+  end
+
+  def save_game
+    p 'save game'
+  end
+
+  def print_help
+    super
+  end
+
+  def write_word(word)
+    p 'write word' + word
+  end
+
+  def not_found
+    p 'not found'
+  end
+
 end
 
 class Notation
@@ -194,5 +233,27 @@ class Notation
   end
 end
 
-game = Game.new
+class Word
+  def self.check(word)
+  end
+end
+
+class Commander
+  def self.execute(command)
+    case
+    when command[0] == 'h'
+      ['print_help']
+    when command[0] == 's'
+      ['save_game']
+    when /([1[0-5]|[1-9]][A-O])\s(v|h)\s(\p{Cyrillic})+/i =~ command
+      ["write_word", command]
+    else
+      ['not_found']
+    end
+  end
+end
+
+
+
+game = Scrabble.new
 game.start_game

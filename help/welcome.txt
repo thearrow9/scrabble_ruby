@@ -1,5 +1,5 @@
 
-Welcome to Scrabble CLI !
+Добре дошли Scrabble CLI !
 
-For more information, type "help"
+За помощ, натиснете "h(elp)"
 

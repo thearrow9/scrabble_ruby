@@ -37,8 +37,8 @@ describe Board do
   end
 end
 
-describe Game do
-  game = Game.new
+describe ScrabbleCore do
+  game = ScrabbleCore.new
   tiles = game.storage.list.size
 
   describe '#tiles_needed' do
