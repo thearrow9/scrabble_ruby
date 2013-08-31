@@ -1,3 +1,5 @@
+require_relative '../drivers/sqlite3.rb'
+
 class Tile
   attr_reader :points, :char
   def initialize(char, points)
@@ -51,15 +53,10 @@ module ScrabbleBoard
   START_POSITION = [8, 8]
 
   BOARD_FIELDS = BOARD_SIZE ** 2.freeze
-
-  def id_to_coords(id)
-    [id / BOARD_SIZE, id % BOARD_SIZE ].map { |x| x + 1 }
-  end
 end
 
 module PrintSettings
   FIELD_SIZE = 6
-  ROW_NAMES = Array('A'..'Z')
 end
 
 class Storage < Tile
@@ -77,10 +74,10 @@ end
 
 class Field
 
-  attr_reader :bonus
+  attr_reader :id, :bonus, :empty
 
   def initialize(id, bonus)
-    @id, @bonus, @occupied = id, bonus, false
+    @id, @bonus, @empty = id, bonus, true
   end
 end
 
@@ -99,7 +96,7 @@ class Board < Field
   private
 
   def field_bonus(id)
-    coords = id_to_coords(id)
+    coords = Notation.id_to_coords(id)
     BONUSES.each { |label, value| return label if value.member? coords }
     nil
   end
@@ -124,20 +121,34 @@ class GameOutput
   end
 
   def print_tiles(rack)
-    print 'Your tiles: '
+    print 'Твоите плочки: '
     rack.each { |char, points| print "#{char}(#{points}) " }
     print "\n"
   end
 
   def print_board(board)
     size = ScrabbleBoard::BOARD_SIZE
-    (1..size).each { |b| print b.to_s.center(6) }
+    (1..size).each { |b| print b.to_s.center(FIELD_SIZE) }
     print "c/r\n"
 
     board.fields.each_slice(size) do |row|
-      row.each { |field| print field[1].nil? ? '.'.to_s.center(6) : field[1] .to_s.center(6) }
-      print ROW_NAMES[row.last[0] / size] + "\n"
+      row.each { |field| print field[1].nil? ? '.'.to_s.center(FIELD_SIZE) : field[1] .to_s.center(FIELD_SIZE) }
+      print "#{row.last[0] / size + 1}\n"
     end
+  end
+end
+
+class ScrabbleMove
+  def initialize
+    reset
+  end
+
+  def place_temp(char, position)
+    @temp_tiles.push([char, position])
+  end
+
+  def reset
+    @temp_tiles = []
   end
 end
 
@@ -180,16 +191,32 @@ class ScrabbleCore < GameOutput
   end
 end
 
-module GameCommand
-end
-
-class Scrabble < ScrabbleCore
-  include GameCommand
-
+class ScrabbleValidation < ScrabbleCore
   def initialize
     super
+    @move = ScrabbleMove.new
   end
 
+  private
+
+  def parse_word(word)
+    start_position, direction, letters = word.split(' ')
+    coords = Notation.coords_to_id(start_position.split(','))
+    direction_value = Notation.get_direction(direction.downcase)
+    validate_writing(coords, letters.downcase.split(','), direction_value)
+  end
+
+  def validate_writing(start_id, letters, direction_value)
+    position = start_id
+    until letters.empty? do
+      @move.place_temp(letters.shift, position) if @board.fields[position][2]
+      position += direction_value
+      return -2 if position > ScrabbleBoard::BOARD_FIELDS || position % ScrabbleBoard::BOARD_SIZE == 0
+    end
+  end
+end
+
+class Scrabble < ScrabbleValidation
   def start_game
     super
     loop do
@@ -201,52 +228,56 @@ class Scrabble < ScrabbleCore
     end
   end
 
-  private
-
   def exec
-    to_call = Commander.execute(prompt)
-    #send(to_call[0], to_call[1])
+    to_call = Command.execute(prompt)
     send(*to_call)
   end
 
+  private
+
   def save_game
-    p 'save game'
-  end
-
-  def print_help
-    super
-  end
-
-  def write_word(word)
-    p 'write word' + word
   end
 
   def not_found
-    p 'not found'
   end
 
 end
 
 class Notation
+  include ScrabbleBoard
+
   def self.save_game(game)
 
+  end
+
+  def self.get_direction(char)
+    char == 'v' ? BOARD_SIZE : 1
+  end
+
+  def self.id_to_coords(id)
+    [id / BOARD_SIZE, id % BOARD_SIZE].map { |x| x + 1 }
+  end
+
+  def self.coords_to_id(coords)
+    (coords[0].to_i - 1) * BOARD_SIZE + coords[1].to_i - 1
   end
 end
 
 class Word
-  def self.check(word)
+  def self.exists? word
+    true
   end
 end
 
-class Commander
+class Command
   def self.execute(command)
     case
     when command[0] == 'h'
       ['print_help']
     when command[0] == 's'
       ['save_game']
-    when /([1[0-5]|[1-9]][A-O])\s(v|h)\s(\p{Cyrillic})+/i =~ command
-      ["write_word", command]
+    when /([1[0-5]|[1-9]],[1[0-5]|[1-9]])\s(v|h)\s(\p{Cyrillic})+/i =~ command
+      ["parse_word", command]
     else
       ['not_found']
     end

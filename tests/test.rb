@@ -53,3 +53,15 @@ describe ScrabbleCore do
   end
 
 end
+
+describe Scrabble do
+  scr = Scrabble.new
+
+  describe '#exec' do
+    com = Command.execute('8h h дума')
+    it 'it executes a method' do
+      expect(Command.execute('8h h дума').size).to be > 0
+      scr.execute(com)
+    end
+  end
+end
