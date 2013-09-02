@@ -1,11 +1,12 @@
 class Command
   def self.execute(command)
+    command.force_encoding('utf-8')
     case
     when command[0] == 'h'
       ['print_help']
     when command[0] == 's'
       ['save_game']
-    when /([1[0-5]|[1-9]],[1[0-5]|[1-9]])\s(v|h)\s(\p{Cyrillic})+/i =~ command
+    when Constant.regex =~ command
       ["word_controller", command]
     else
       ['not_found']

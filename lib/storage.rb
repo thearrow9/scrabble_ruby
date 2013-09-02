@@ -6,13 +6,11 @@ class Tile
 end
 
 class Storage
-  include ScrabbleSet
-
   attr_reader :list
 
   def initialize
     @list = []
-    ALPHABET.each do |letter, (points, quantity)|
+    Constant.set.each do |letter, (points, quantity)|
       quantity.times { @list << Tile.new(letter, points) }
     end
   end

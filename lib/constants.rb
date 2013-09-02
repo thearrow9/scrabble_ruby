@@ -1,37 +1,4 @@
-module ScrabbleSet
-  ALPHABET = { 'А' => [1, 17],
-               'Б' => [2, 1],
-               'В' => [2, 1],
-               'Г' => [3, 1],
-               'Д' => [2, 1],
-               'Е' => [1, 1],
-               'Ж' => [4, 1],
-               'З' => [4, 1],
-               'И' => [1, 1],
-               'Й' => [5, 1],
-               'К' => [2, 1],
-               'Л' => [2, 1],
-               'М' => [2, 1],
-               'Н' => [1, 1],
-               'О' => [1, 1],
-               'П' => [1, 1],
-               'Р' => [1, 1],
-               'С' => [1, 1],
-               'Т' => [1, 1],
-               'У' => [5, 1],
-               'Ф' => [10, 1],
-               'Х' => [5, 4],
-               'Ц' => [8, 1],
-               'Ч' => [5, 4],
-               'Ш' => [8, 4],
-               'Щ' => [10, 2],
-               'Ъ' => [3, 4],
-               'Ь' => [10, 1],
-               'Ю' => [8, 1],
-               'Я' => [5, 4],
-               '_' => [0, 0]
-  }.freeze
-end
+require_relative './languages.rb'
 
 module ScrabbleRules
   BOARD_SIZE = 15
@@ -44,7 +11,15 @@ module ScrabbleRules
 end
 
 class Constant
-  include ScrabbleRules
+  include ScrabbleRules, BulgarianPack
+
+  def self.set
+    ALPHABET
+  end
+
+  def self.regex
+    REGEX
+  end
 
   def self.size
     BOARD_SIZE

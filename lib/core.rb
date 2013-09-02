@@ -1,10 +1,12 @@
-require_relative './constants.rb'
 require_relative './commands.rb'
 require_relative './notation.rb'
 require_relative './storage.rb'
 require_relative './board.rb'
 require_relative './output.rb'
+require_relative './log.rb'
+require_relative './online_checker.rb'
 require_relative '../drivers/sqlite3.rb'
+require_relative './constants.rb'
 
 class ScrabbleMove
   attr_accessor :direction, :words, :temp_tiles
@@ -56,7 +58,6 @@ class ScrabbleCore < ScrabbleOutput
   end
 
   def game_over
-
     true
   end
 end
@@ -69,10 +70,6 @@ class ScrabbleValidation < ScrabbleCore
 
   def validate_used_tiles(letters)
 
-  end
-
-  def collect_all_words
-    @move.words = [try_to_concat]
   end
 
   def word_coords(start_id, letters)
@@ -88,33 +85,15 @@ class ScrabbleValidation < ScrabbleCore
     return tiles
   end
 
-  def concat_after
-    position = @move.temp_tiles.first[1]
-    prefix = ''
-    while position > 0 and position % Constant.size != 0 and ! free? position do
-      prefix += get_letter_at(position)
-      position -= @move.direction
-    end
-    prefix
-  end
-
-  def concat_before
-    position = @move.temp_tiles.last[1]
-    suffix = ''
-    while position < Constant.all_fields and (position - 1) % Constant.size != 0 and ! free? position do
-      suffix += get_letter_at(position)
-      position += @move.direction
-    end
-    suffix
-  end
-
-  def look_opposite_direction
-    @move.temp_tiles.each
-  end
-
   def verify_words
-    p @move.words
-    @move.words.each
+    p @move
+    @move.words.each do |word|
+      code = Word.verify(word)
+      #print result ?
+      p code
+      ScrabbleLog.searching_word(word, code)
+      result = ScrabbleOnlineCheck.verify? word if code < 0
+    end
   end
 end
 
@@ -129,19 +108,31 @@ class ScrabbleWordDetector < ScrabbleValidation
     start_id, letters, @move.direction = Command.parse(command)
     @move.temp_tiles = word_coords(start_id, letters)
     place_new_tiles
-    original_word = find_before(start_id - @move.direction, @move.direction) + find_after(start_id, @move.direction)
-    p original_word
-    p @move
-    #validate_used_tiles(letters)
-    #validate_writing(start_id.to_i, letters, direction)
-    ##collect_all_words
-    ##try_to_concat(word)
-    #look_opposite_direction
-    #verify_words
+    @move.words << get_word(start_id, @move.direction)
+    find_more_words
+    verify_words
   end
 
   def place_new_tiles
     @move.temp_tiles.each { |row| @board.fields[row[0]].label = row[1] }
+    p @storage
+  end
+
+  def get_word(start_id, direction)
+    find_before(start_id - direction, direction) + find_after(start_id, direction)
+  end
+
+  def find_more_words
+    direction = Notation.other_direction(@move.direction)
+    @move.temp_tiles.each do |letter|
+      position = letter[0]
+      @move.words << get_word(position, direction)
+    end
+    reject_non_words
+  end
+
+  def reject_non_words
+    @move.words.reject! { |word| word.size < 2 }
   end
 
   def find_before(id, step)
@@ -203,8 +194,11 @@ class Scrabble < ScrabbleWordDetector
 end
 
 class Word
-  def self.exists? word
-    true
+  def self.verify word
+    db = DB.new
+    result = db.find_word(word)
+    db.close
+    result
   end
 end
 

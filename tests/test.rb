@@ -58,10 +58,8 @@ describe Scrabble do
   scr = Scrabble.new
 
   describe '#exec' do
-    com = Command.execute('8h h дума')
     it 'it executes a method' do
-      expect(Command.execute('8h h дума').size).to be > 0
-      scr.execute(com)
+      expect(Command.execute('8,8 h дума').size).to be > 0
     end
   end
 end
@@ -70,6 +68,6 @@ describe ScrabbleValidation do
   sc = ScrabbleValidation.new
 
   describe '#parse_word' do
-    p sc.send(:parse_word, '8,8 v олеле')
+    sc.send(:parse_word, '8,8 v олеле')
   end
 end

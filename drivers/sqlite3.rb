@@ -7,14 +7,15 @@ class DB
 
   def create_table
     @db.execute('CREATE TABLE IF NOT EXISTS `scrabble` (
-                `word` varchar(50) NOT NULL,
+                `word` VARCHAR(20) NOT NULL,
                 `exists` INTEGER(1) NOT NULL,
                  PRIMARY KEY (`word`)
                 )')
   end
 
   def find_word(word)
-
+    row = @db.get_first_row("SELECT * FROM scrabble WHERE word = ?", word)
+    row.nil? ? -1 : row[1]
   end
 
   def close

@@ -35,5 +35,6 @@ class ScrabbleOutput
       print "#{rows.shift}\n"
     end
   end
+
 end
 
