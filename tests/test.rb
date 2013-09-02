@@ -65,3 +65,11 @@ describe Scrabble do
     end
   end
 end
+
+describe ScrabbleValidation do
+  sc = ScrabbleValidation.new
+
+  describe '#parse_word' do
+    p sc.send(:parse_word, '8,8 v олеле')
+  end
+end

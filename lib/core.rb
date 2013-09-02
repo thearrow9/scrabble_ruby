@@ -1,144 +1,14 @@
+require_relative './constants.rb'
+require_relative './commands.rb'
+require_relative './notation.rb'
+require_relative './storage.rb'
+require_relative './board.rb'
+require_relative './output.rb'
 require_relative '../drivers/sqlite3.rb'
 
-class Tile
-  attr_reader :points, :char
-  def initialize(char, points)
-    @char, @points = char, points
-  end
-end
-
-module ScrabbleSet
-  ALPHABET = { 'А' => [1, 17],
-               'Б' => [2, 1],
-               'В' => [2, 1],
-               'Г' => [3, 1],
-               'Д' => [2, 1],
-               'Е' => [1, 1],
-               'Ж' => [4, 1],
-               'З' => [4, 1],
-               'И' => [1, 1],
-               'Й' => [5, 1],
-               'К' => [2, 1],
-               'Л' => [2, 1],
-               'М' => [2, 1],
-               'Н' => [1, 1],
-               'О' => [1, 1],
-               'П' => [1, 1],
-               'Р' => [1, 1],
-               'С' => [1, 1],
-               'Т' => [1, 1],
-               'У' => [5, 1],
-               'Ф' => [10, 1],
-               'Х' => [5, 4],
-               'Ц' => [8, 1],
-               'Ч' => [5, 4],
-               'Ш' => [8, 4],
-               'Щ' => [10, 2],
-               'Ъ' => [3, 4],
-               'Ь' => [10, 1],
-               'Ю' => [8, 1],
-               'Я' => [5, 4],
-               '_' => [0, 0]
-  }.freeze
-end
-
-module ScrabbleRules
-  #MAX_PLAYERS = 4
-  TILES_IN_RACK = 7
-end
-
-module ScrabbleBoard
-  BOARD_SIZE = 15
-  BONUSES = { '3W' => [[1, 1], [1, 4]], '*' => [[8, 8]] }.freeze
-  START_POSITION = [8, 8]
-
-  BOARD_FIELDS = BOARD_SIZE ** 2.freeze
-end
-
-module PrintSettings
-  FIELD_SIZE = 6
-end
-
-class Storage < Tile
-  include ScrabbleSet
-
-  attr_reader :list
-
-  def initialize
-    @list = []
-    ALPHABET.each do |letter, (points, quantity)|
-      quantity.times { @list << super(letter, points) }
-    end
-  end
-end
-
-class Field
-
-  attr_reader :id, :bonus, :empty
-
-  def initialize(id, bonus)
-    @id, @bonus, @empty = id, bonus, true
-  end
-end
-
-class Board < Field
-  include ScrabbleBoard
-
-  attr_reader :fields
-
-  def initialize
-    @fields = []
-    (BOARD_FIELDS).times do |id|
-      @fields << super(id, field_bonus(id))
-    end
-  end
-
-  private
-
-  def field_bonus(id)
-    coords = Notation.id_to_coords(id)
-    BONUSES.each { |label, value| return label if value.member? coords }
-    nil
-  end
-end
-
-class GameOutput
-  include PrintSettings
-
-  def start_game
-    print File.read('help/welcome.txt')
-  end
-
-  private
-
-  def print_help
-    print File.read('help/help.txt')
-  end
-
-  def prompt
-    print '>>>> '
-    gets.chomp
-  end
-
-  def print_tiles(rack)
-    print 'Твоите плочки: '
-    rack.each { |char, points| print "#{char}(#{points}) " }
-    print "\n"
-  end
-
-  def print_board(board)
-    size = ScrabbleBoard::BOARD_SIZE
-    (1..size).each { |b| print b.to_s.center(FIELD_SIZE) }
-    print "c/r\n"
-
-    board.fields.each_slice(size) do |row|
-      row.each { |field| print field[1].nil? ? '.'.to_s.center(FIELD_SIZE) : field[1] .to_s.center(FIELD_SIZE) }
-      print "#{row.last[0] / size + 1}\n"
-    end
-  end
-end
-
 class ScrabbleMove
+  attr_accessor :direction, :words, :temp_tiles
+
   def initialize
     reset
   end
@@ -148,13 +18,12 @@ class ScrabbleMove
   end
 
   def reset
-    @temp_tiles = []
+    @temp_tiles, @words = [], []
+    @direction = 1
   end
 end
 
-class ScrabbleCore < GameOutput
-  include ScrabbleRules
-
+class ScrabbleCore < ScrabbleOutput
   attr_reader :storage
 
   def initialize
@@ -169,7 +38,7 @@ class ScrabbleCore < GameOutput
     if @storage.list.empty?
       game_over
     else
-      needed, available = TILES_IN_RACK - @rack.size, @storage.list.size
+      needed, available = Constant.tiles_in_rack - @rack.size, @storage.list.size
     end
     needed > available ? available : needed
   end
@@ -188,35 +57,124 @@ class ScrabbleCore < GameOutput
 
   def game_over
 
+    true
   end
 end
 
+
 class ScrabbleValidation < ScrabbleCore
-  def initialize
-    super
-    @move = ScrabbleMove.new
-  end
 
   private
 
-  def parse_word(word)
-    start_position, direction, letters = word.split(' ')
-    coords = Notation.coords_to_id(start_position.split(','))
-    direction_value = Notation.get_direction(direction.downcase)
-    validate_writing(coords, letters.downcase.split(','), direction_value)
+
+  def validate_used_tiles(letters)
+
   end
 
-  def validate_writing(start_id, letters, direction_value)
-    position = start_id
+  def collect_all_words
+    @move.words = [try_to_concat]
+  end
+
+  def word_coords(start_id, letters)
+    tiles = []
+    position = start_id.to_i
     until letters.empty? do
-      @move.place_temp(letters.shift, position) if @board.fields[position][2]
-      position += direction_value
-      return -2 if position > ScrabbleBoard::BOARD_FIELDS || position % ScrabbleBoard::BOARD_SIZE == 0
+      if free? position
+        tiles << [position, letters.shift, @board.fields[position].label]
+      end
+      position += @move.direction
+      return [] if position > Constant.all_fields || position % Constant.size == 0
     end
+    return tiles
+  end
+
+  def concat_after
+    position = @move.temp_tiles.first[1]
+    prefix = ''
+    while position > 0 and position % Constant.size != 0 and ! free? position do
+      prefix += get_letter_at(position)
+      position -= @move.direction
+    end
+    prefix
+  end
+
+  def concat_before
+    position = @move.temp_tiles.last[1]
+    suffix = ''
+    while position < Constant.all_fields and (position - 1) % Constant.size != 0 and ! free? position do
+      suffix += get_letter_at(position)
+      position += @move.direction
+    end
+    suffix
+  end
+
+  def look_opposite_direction
+    @move.temp_tiles.each
+  end
+
+  def verify_words
+    p @move.words
+    @move.words.each
   end
 end
 
-class Scrabble < ScrabbleValidation
+class ScrabbleWordDetector < ScrabbleValidation
+  def initialize
+    super
+    @moves = []
+    @move = ScrabbleMove.new
+  end
+
+  def word_controller(command)
+    start_id, letters, @move.direction = Command.parse(command)
+    @move.temp_tiles = word_coords(start_id, letters)
+    place_new_tiles
+    original_word = find_before(start_id - @move.direction, @move.direction) + find_after(start_id, @move.direction)
+    p original_word
+    p @move
+    #validate_used_tiles(letters)
+    #validate_writing(start_id.to_i, letters, direction)
+    ##collect_all_words
+    ##try_to_concat(word)
+    #look_opposite_direction
+    #verify_words
+  end
+
+  def place_new_tiles
+    @move.temp_tiles.each { |row| @board.fields[row[0]].label = row[1] }
+  end
+
+  def find_before(id, step)
+    prefix = ''
+    while id > -1 and (id + 1) % Constant.size != 0 do
+      break if free? id
+      prefix = get_letter_at(id) + prefix
+      id -= step
+    end
+    prefix
+  end
+
+  def find_after(id, step)
+    suffix = ''
+    while id < Constant.all_fields and id % Constant.size != 0  do
+      break if free? id
+      suffix += get_letter_at(id)
+      id += step
+    end
+    suffix
+  end
+
+  def free? id
+    ! @board.fields[id].occuppied?
+ end
+
+  def get_letter_at(id)
+    return @board.fields[id].label if @board.fields[id].occuppied?
+    @move.temp_tiles.select { |char| char[0] == id }.first
+  end
+end
+
+class Scrabble < ScrabbleWordDetector
   def start_game
     super
     loop do
@@ -236,6 +194,7 @@ class Scrabble < ScrabbleValidation
   private
 
   def save_game
+    true
   end
 
   def not_found
@@ -243,48 +202,11 @@ class Scrabble < ScrabbleValidation
 
 end
 
-class Notation
-  include ScrabbleBoard
-
-  def self.save_game(game)
-
-  end
-
-  def self.get_direction(char)
-    char == 'v' ? BOARD_SIZE : 1
-  end
-
-  def self.id_to_coords(id)
-    [id / BOARD_SIZE, id % BOARD_SIZE].map { |x| x + 1 }
-  end
-
-  def self.coords_to_id(coords)
-    (coords[0].to_i - 1) * BOARD_SIZE + coords[1].to_i - 1
-  end
-end
-
 class Word
   def self.exists? word
     true
   end
 end
-
-class Command
-  def self.execute(command)
-    case
-    when command[0] == 'h'
-      ['print_help']
-    when command[0] == 's'
-      ['save_game']
-    when /([1[0-5]|[1-9]],[1[0-5]|[1-9]])\s(v|h)\s(\p{Cyrillic})+/i =~ command
-      ["parse_word", command]
-    else
-      ['not_found']
-    end
-  end
-end
-
-
 
 game = Scrabble.new
 game.start_game
