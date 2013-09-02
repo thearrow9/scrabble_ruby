@@ -11,14 +11,30 @@ module ScrabbleRules
 end
 
 class Constant
-  include ScrabbleRules, BulgarianPack
+  include ScrabbleRules, EnglishPack
 
   def self.set
     ALPHABET
   end
 
-  def self.regex
-    REGEX
+  def self.cmd_regex
+    CMD_REGEX
+  end
+
+  def self.main_regex
+    MAIN_REGEX
+  end
+
+  def self.lang
+    LABEL
+  end
+
+  def self.server
+    SERVER_URL
+  end
+
+  def self.pattern
+    NOT_FOUND_REGEX
   end
 
   def self.size

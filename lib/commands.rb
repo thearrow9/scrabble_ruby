@@ -6,7 +6,7 @@ class Command
       ['print_help']
     when command[0] == 's'
       ['save_game']
-    when Constant.regex =~ command
+    when Constant.cmd_regex =~ command
       ["word_controller", command]
     else
       ['not_found']

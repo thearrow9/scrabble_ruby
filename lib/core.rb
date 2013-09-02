@@ -86,13 +86,14 @@ class ScrabbleValidation < ScrabbleCore
   end
 
   def verify_words
-    p @move
     @move.words.each do |word|
       code = Word.verify(word)
       #print result ?
-      p code
       ScrabbleLog.searching_word(word, code)
-      result = ScrabbleOnlineCheck.verify? word if code < 0
+      if code < 0
+        result = ScrabbleOnlineCheck.verify? word, Constant.server, Constant.pattern
+        p result ? 1 : 0
+      end
     end
   end
 end
@@ -115,7 +116,6 @@ class ScrabbleWordDetector < ScrabbleValidation
 
   def place_new_tiles
     @move.temp_tiles.each { |row| @board.fields[row[0]].label = row[1] }
-    p @storage
   end
 
   def get_word(start_id, direction)
@@ -196,7 +196,7 @@ end
 class Word
   def self.verify word
     db = DB.new
-    result = db.find_word(word)
+    result = db.find_word(word, Constant.lang)
     db.close
     result
   end

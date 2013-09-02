@@ -10,7 +10,7 @@ class Field
   end
 
   def occuppied?
-    /\p{Cyrillic}/ =~ @label
+    Constant.main_regex =~ @label
   end
 
   def has_label?

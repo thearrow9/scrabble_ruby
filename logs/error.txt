@@ -1,0 +1,7 @@
+/home/tihomir/Programs/Ruby/fmi_project/lib/constants.rb:79:in `english_set': uninitialized constant Constant::ENGLISH_ALPHABET (NameError)
+	from /home/tihomir/Programs/Ruby/fmi_project/lib/storage.rb:15:in `initialize'
+	from lib/core.rb:32:in `new'
+	from lib/core.rb:32:in `initialize'
+	from lib/core.rb:99:in `initialize'
+	from lib/core.rb:201:in `new'
+	from lib/core.rb:201:in `<main>'

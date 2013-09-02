@@ -12,7 +12,7 @@ class ScrabbleOutput
   def prompt
     print '>>>> '
     #gets.chomp
-    '8,8 v дума'
+    '8,8 v word'
   end
 
   def print_tiles(rack)
