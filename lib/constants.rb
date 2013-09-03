@@ -13,7 +13,7 @@ module ScrabbleRules
 end
 
 class Constant
-  include ScrabbleRules, EnglishPack
+  include ScrabbleRules, BulgarianPack
 
   METHODS = {'set'           => ALPHABET,
              'writing_regex' => CMD_REGEX,
