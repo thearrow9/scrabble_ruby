@@ -6,6 +6,8 @@ class Command
       ['print_help']
     when command[0] == 't'
       ['print_all_tiles']
+    when command[0] == 'q'
+      ['force_game_over']
     when command[0] == 's'
       ['swap_tiles', command]
     when Constant.writing_regex =~ command

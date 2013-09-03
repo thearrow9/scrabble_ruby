@@ -32,6 +32,7 @@ class ScrabbleCore < ScrabbleOutput
     @board, @storage = Board.new, Storage.new
     @storage.list.shuffle!
     @rack = []
+    @is_forced = false
   end
 
   private
@@ -58,6 +59,11 @@ class ScrabbleCore < ScrabbleOutput
   end
 
   def game_over
+    @is_forced
+  end
+
+  def force_game_over
+    @is_forced = true
   end
 
   def coord_from_tiles(tiles)
@@ -68,7 +74,7 @@ class ScrabbleCore < ScrabbleOutput
     tiles = Command.parse_swap(command)
     removed_tiles = remove_from_rack(tiles)
     print_swap(removed_tiles.size)
-    @storage.list.concat(removed_tiles)
+    @storage.list.concat(removed_tiles).shuffle!
     draw(tiles_needed)
   end
 end
@@ -187,7 +193,6 @@ class ScrabbleWordDetector < ScrabbleValidation
 
     complete_this_move
     remove_from_rack(letters)
-    p @board.fields.select { |f| f.occuppied? }
   end
 
   def complete_this_move

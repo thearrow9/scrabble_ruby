@@ -17,7 +17,7 @@ class ScrabbleOutput
 
   def print_tiles(rack)
     print 'Твоите плочки: '
-    rack.each { |tile| print "#{tile.char}(#{tile.points}) " }
+    rack.each { |tile| print "[#{tile.char}] " } #(#{tile.points}) " }
     print "\n"
   end
 
@@ -42,7 +42,7 @@ class ScrabbleOutput
   end
 
   def print_swap(count)
-    print "Получени са #{count} нови букви: "
+    print "Получени са #{count} нови букви\n"
   end
 
   def print_all_tiles(storage)
