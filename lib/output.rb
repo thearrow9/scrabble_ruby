@@ -11,8 +11,8 @@ class ScrabbleOutput
 
   def prompt
     print '>>>> '
-    #gets.chomp
-    '8,8 v word'
+    gets.chomp
+    #'8,8 v word'
   end
 
   def print_tiles(rack)
@@ -29,7 +29,7 @@ class ScrabbleOutput
 
     board.fields.each_slice(size) do |row|
       row.each do |field|
-        letter = field.blank? ? '.' : field.label
+        letter = field.blank? ? '.' : field.label.upcase
         print letter.center(Constant.field_size)
       end
       print "#{rows.shift}\n"

@@ -1,6 +1,6 @@
 class Command
   def self.execute(command)
-    command.force_encoding('utf-8')
+    command.downcase.force_encoding('utf-8')
     case
     when command[0] == 'h'
       ['print_help']
@@ -15,8 +15,8 @@ class Command
 
   def self.parse(command)
     start_position, direction, letters = command.split(' ')
-    return Notation.coords_to_id(start_position.split(',')), letters.downcase.split(''),
-    Notation.get_direction(direction.downcase)
+    return Notation.coords_to_id(start_position.split(',')), letters.split(''),
+    Notation.get_direction(direction)
   end
 end
 

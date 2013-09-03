@@ -17,6 +17,10 @@ class ScrabbleLog
     write(output)
   end
 
+  def self.validating_word(word, flag)
+    write "Думата \"#{word}\" не съществува в тълковния речник.\n" unless flag
+  end
+
   def self.write(content)
     file = File.new(GAME_LOG_PATH, "a")
     file.write(content)

@@ -32,7 +32,7 @@ module EnglishPack
                '_' => [0, 0]
   }
 
-  MAIN_REGEX = /[a-z]/
+  MAIN_REGEX = /[a-z]/i
   CMD_REGEX = /([1[0-5]|[1-9]],[1[0-5]|[1-9]])\s[vh]\s[a-z]+/i
 end
 
@@ -74,6 +74,6 @@ module BulgarianPack
                '_' => [0, 0]
   }.freeze
 
-  MAIN_REGEX = /\p{Cyrillic}/
+  MAIN_REGEX = /\p{Cyrillic}/i
   CMD_REGEX = /([1[0-5]|[1-9]],[1[0-5]|[1-9]])\s[vh]\s[\p{Cyrillic}]+/i
 end

@@ -13,48 +13,23 @@ end
 class Constant
   include ScrabbleRules, EnglishPack
 
-  def self.set
-    ALPHABET
-  end
+  METHODS = {'set'           => ALPHABET,
+             'cmd_regex'     => CMD_REGEX,
+             'main_regex'    => MAIN_REGEX,
+             'lang'          => LABEL,
+             'server'        => SERVER_URL,
+             'pattern'       => NOT_FOUND_REGEX,
+             'size'          => BOARD_SIZE,
+             'all_fields'    => BOARD_FIELDS,
+             'field_size'    => FIELD_SIZE,
+             'bonuses'       => BONUSES,
+             'tiles_in_rack' => TILES_IN_RACK
+  }
 
-  def self.cmd_regex
-    CMD_REGEX
-  end
-
-  def self.main_regex
-    MAIN_REGEX
-  end
-
-  def self.lang
-    LABEL
-  end
-
-  def self.server
-    SERVER_URL
-  end
-
-  def self.pattern
-    NOT_FOUND_REGEX
-  end
-
-  def self.size
-    BOARD_SIZE
-  end
-
-  def self.all_fields
-    BOARD_FIELDS
-  end
-
-  def self.field_size
-    FIELD_SIZE
-  end
-
-  def self.bonuses
-    BONUSES
-  end
-
-  def self.tiles_in_rack
-    TILES_IN_RACK
+  METHODS.each do |key, value|
+    define_singleton_method key do
+      value
+    end
   end
 end
 

@@ -20,13 +20,10 @@ class DB
   end
 
   def insert_word(word, flag, lang)
-    @db.execute("INSERT INTO scrabble VALUES(?, ?)", word, flag, lang)
+    @db.execute("INSERT INTO scrabble VALUES(?, ?, ?)", word, flag, lang)
   end
 
   def close
     @db.close
   end
 end
-
-db = DB.new
-db.create_table

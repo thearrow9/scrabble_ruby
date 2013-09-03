@@ -58,7 +58,6 @@ class ScrabbleCore < ScrabbleOutput
   end
 
   def game_over
-    true
   end
 end
 
@@ -86,15 +85,20 @@ class ScrabbleValidation < ScrabbleCore
   end
 
   def verify_words
+    is_ok = true
     @move.words.each do |word|
       code = Word.verify(word)
-      #print result ?
       ScrabbleLog.searching_word(word, code)
+      is_ok = false if code == 0
       if code < 0
         result = ScrabbleOnlineCheck.verify? word, Constant.server, Constant.pattern
-        p result ? 1 : 0
+        flag = result ? 1 : 0
+        Word.insert(word, flag)
+        ScrabbleLog.validating_word(word, result)
+        is_ok = false unless result
       end
     end
+    is_ok
   end
 end
 
@@ -107,11 +111,12 @@ class ScrabbleWordDetector < ScrabbleValidation
 
   def word_controller(command)
     start_id, letters, @move.direction = Command.parse(command)
+    p @move
     @move.temp_tiles = word_coords(start_id, letters)
     place_new_tiles
     @move.words << get_word(start_id, @move.direction)
     find_more_words
-    verify_words
+    undo_move unless verify_words
   end
 
   def place_new_tiles
@@ -157,7 +162,12 @@ class ScrabbleWordDetector < ScrabbleValidation
 
   def free? id
     ! @board.fields[id].occuppied?
- end
+  end
+
+  def undo_move
+    @move.temp_tiles.each { |row| @board.fields[row[0]].label = row[2] }
+    @move.reset
+  end
 
   def get_letter_at(id)
     return @board.fields[id].label if @board.fields[id].occuppied?
@@ -177,12 +187,12 @@ class Scrabble < ScrabbleWordDetector
     end
   end
 
+  private
+
   def exec
     to_call = Command.execute(prompt)
     send(*to_call)
   end
-
-  private
 
   def save_game
     true
@@ -199,6 +209,12 @@ class Word
     result = db.find_word(word, Constant.lang)
     db.close
     result
+  end
+
+  def self.insert(word, flag)
+    db = DB.new
+    db.insert_word(word, flag, Constant.lang)
+    db.close
   end
 end
 
