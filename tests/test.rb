@@ -1,24 +1,31 @@
 require 'core'
 
 describe Tile do
-  tile = Tile.new('Б', 2)
+  before :all do
+    @tile = Tile.new('Б', 2)
+  end
+
   describe '#points' do
     it 'points should match its tile' do
-      expect(tile.points).to eq(2)
+      @tile.points.should be 2
     end
   end
 end
 
 describe Storage do
-  storage = Storage.new
-  it 'returns size of alphabet' do
-    expect(storage.list.size).to be > 0
+  before :all do
+    @storage = Storage.new
+    @tiles = Constant.set.inject(0) { |sum, value| sum + value[1][1] }
+  end
+
+  describe '#list' do
+    it 'returns size of alphabet' do
+      @storage.list.size.should be @tiles
+    end
   end
 end
 
-describe Board do
-  board = Board.new
-
+describe Notation do
   #describe '#field_bonus' do
   #  it 'return bonus label' do
   #    expect(board.field_bonus(0)).to eq('3W')
@@ -28,11 +35,11 @@ describe Board do
 
   describe '#id_to_coords' do
     it 'returns coordinates by id' do
-      expect(board.id_to_coords(0)).to eq([1, 1])
-      expect(board.id_to_coords(1)).to eq([1, 2])
-      expect(board.id_to_coords(15)).to eq([2, 1])
-      expect(board.id_to_coords(16)).to eq([2, 2])
-      expect(board.id_to_coords(224)).to eq([15, 15])
+      expect(Notation.id_to_coords(0)).to eq([1, 1])
+      expect(Notation.id_to_coords(1)).to eq([1, 2])
+      expect(Notation.id_to_coords(15)).to eq([2, 1])
+      expect(Notation.id_to_coords(16)).to eq([2, 2])
+      expect(Notation.id_to_coords(224)).to eq([15, 15])
     end
   end
 end
@@ -54,20 +61,20 @@ describe ScrabbleCore do
 
 end
 
-describe Scrabble do
-  scr = Scrabble.new
-
-  describe '#exec' do
-    it 'it executes a method' do
-      expect(Command.execute('8,8 h дума').size).to be > 0
-    end
-  end
-end
-
-describe ScrabbleValidation do
-  sc = ScrabbleValidation.new
-
-  describe '#parse_word' do
-    sc.send(:parse_word, '8,8 v олеле')
-  end
-end
+#describe Scrabble do
+#  scr = Scrabble.new
+#
+#  describe '#exec' do
+#    it 'it executes a method' do
+#      expect(Command.execute('8,8 h дума').size).to be > 0
+#    end
+#  end
+#end
+#
+#describe ScrabbleValidation do
+#  sc = ScrabbleValidation.new
+#
+#  describe '#parse_word' do
+#    sc.send(:parse_word, '8,8 v олеле')
+#  end
+#end

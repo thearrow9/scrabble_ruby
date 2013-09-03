@@ -6,12 +6,15 @@ class DB
   end
 
   def create_table
+    print 'Базата данни'
+    print 'не' unless
     @db.execute('CREATE TABLE IF NOT EXISTS `scrabble` (
                 `word` VARCHAR(20) NOT NULL,
                 `exists` INTEGER(1) NOT NULL,
                 `lang` CHAR(2) NOT NULL,
                  PRIMARY KEY (`word`)
                 )')
+    print " e създадена.\n"
   end
 
   def find_word(word, lang)

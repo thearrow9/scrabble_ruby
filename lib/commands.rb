@@ -4,19 +4,27 @@ class Command
     case
     when command[0] == 'h'
       ['print_help']
+    when command[0] == 't'
+      ['print_all_tiles']
     when command[0] == 's'
-      ['save_game']
-    when Constant.cmd_regex =~ command
+      ['swap_tiles', command]
+    when Constant.writing_regex =~ command
       ["word_controller", command]
     else
-      ['not_found']
+      ['print_error', 0]
     end
   end
 
-  def self.parse(command)
+  def self.parse_word(command)
     start_position, direction, letters = command.split(' ')
     return Notation.coords_to_id(start_position.split(',')), letters.split(''),
     Notation.get_direction(direction)
+  end
+
+  def self.parse_swap(command)
+    prefix, word = command.split(' ')
+    return false if word.empty?
+    word.split('')
   end
 end
 

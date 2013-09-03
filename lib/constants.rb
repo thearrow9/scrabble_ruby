@@ -2,7 +2,9 @@ require_relative './languages.rb'
 
 module ScrabbleRules
   BOARD_SIZE = 15
+  #TODO
   BONUSES = { '3W' => [[1, 1], [1, 4]], '*' => [[8, 8]] }
+  #END TODO
   START_POSITION = [8, 8]
   BOARD_FIELDS = BOARD_SIZE ** 2
 
@@ -14,7 +16,7 @@ class Constant
   include ScrabbleRules, EnglishPack
 
   METHODS = {'set'           => ALPHABET,
-             'cmd_regex'     => CMD_REGEX,
+             'writing_regex' => CMD_REGEX,
              'main_regex'    => MAIN_REGEX,
              'lang'          => LABEL,
              'server'        => SERVER_URL,
@@ -22,6 +24,7 @@ class Constant
              'size'          => BOARD_SIZE,
              'all_fields'    => BOARD_FIELDS,
              'field_size'    => FIELD_SIZE,
+             'start_coord'   => START_POSITION,
              'bonuses'       => BONUSES,
              'tiles_in_rack' => TILES_IN_RACK
   }
