@@ -2,7 +2,7 @@ class ScrabbleLog
   GAME_LOG_PATH = 'logs/scrabble.txt'
   ERROR_LOG_PATH = 'logs/error.txt'
 
-  #$stderr.reopen(ERROR_LOG_PATH)
+  $stderr.reopen(ERROR_LOG_PATH)
   def self.searching_word(word, code)
     output = "Думата \"#{word}\" " +
     case code

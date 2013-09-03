@@ -162,6 +162,8 @@ class ScrabbleWordDetector < ScrabbleValidation
     @move = ScrabbleMove.new
   end
 
+  private
+
   def word_controller(command)
     start_id, letters, @move.direction = Command.parse_word(command)
 

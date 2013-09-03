@@ -26,13 +26,6 @@ describe Storage do
 end
 
 describe Notation do
-  #describe '#field_bonus' do
-  #  it 'return bonus label' do
-  #    expect(board.field_bonus(0)).to eq('3W')
-  #    expect(board.field_bonus(1)).to eq(nil)
-  #  end
-  #end
-
   describe '#id_to_coords' do
     it 'returns coordinates by id' do
       expect(Notation.id_to_coords(0)).to eq([1, 1])
@@ -44,13 +37,17 @@ describe Notation do
   end
 end
 
+
+
+
 describe ScrabbleCore do
-  game = ScrabbleCore.new
-  tiles = game.storage.list.size
+  before :all do
+    @core = ScrabbleCore.new
+  end
 
   describe '#tiles_needed' do
-    it 'returns the amount of needed tiles' do
-      expect(game.tiles_needed).to eq(7)
+    it 'returns amount of needed tiles' do
+      @core.send(:tiles_needed).should be 7
     end
 
     it 'returns remaining tiles' do
