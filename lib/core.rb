@@ -4,6 +4,7 @@ require_relative './storage'
 require_relative './board'
 require_relative './output'
 require_relative './log'
+require_relative './word'
 require_relative './online_checker'
 require_relative '../drivers/sqlite3'
 require_relative './constants'
@@ -296,21 +297,3 @@ class Scrabble < ScrabbleWordDetector
     true
   end
 end
-
-class Word
-  def self.verify word
-    db = DB.new
-    result = db.find_word(word, Constant.lang)
-    db.close
-    result
-  end
-
-  def self.insert(word, flag)
-    db = DB.new
-    db.insert_word(word, flag, Constant.lang)
-    db.close
-  end
-end
-
-#game = Scrabble.new
-#game.start_game

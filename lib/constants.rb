@@ -1,10 +1,12 @@
-require_relative './languages.rb'
+require_relative '../languages/english'
 
 module ScrabbleRules
   BOARD_SIZE = 15
-  #TODO
-  BONUSES = { '3W' => [[1, 1], [1, 4]], '*' => [[8, 8]] }
-  #END TODO
+  BONUSES = {
+               #'3W' => [[1, 1], [1, 4]],
+                '*'  => [[8, 8]]
+  }
+
   START_POSITION = [8, 8]
   BOARD_FIELDS = BOARD_SIZE ** 2
 
@@ -13,20 +15,20 @@ module ScrabbleRules
 end
 
 class Constant
-  include ScrabbleRules, EnglishPack
+  include ScrabbleRules, LanguageSet
 
-  METHODS = {'set'           => ALPHABET,
-             'writing_regex' => CMD_REGEX,
-             'main_regex'    => MAIN_REGEX,
-             'lang'          => LABEL,
-             'server'        => SERVER_URL,
-             'pattern'       => NOT_FOUND_REGEX,
-             'size'          => BOARD_SIZE,
-             'all_fields'    => BOARD_FIELDS,
-             'field_size'    => FIELD_SIZE,
-             'start_coord'   => START_POSITION,
-             'bonuses'       => BONUSES,
-             'tiles_in_rack' => TILES_IN_RACK
+  METHODS = { 'set'           => ALPHABET,
+              'writing_regex' => CMD_REGEX,
+              'main_regex'    => MAIN_REGEX,
+              'lang'          => LABEL,
+              'server'        => SERVER_URL,
+              'pattern'       => NOT_FOUND_REGEX,
+              'size'          => BOARD_SIZE,
+              'all_fields'    => BOARD_FIELDS,
+              'field_size'    => FIELD_SIZE,
+              'start_coord'   => START_POSITION,
+              'bonuses'       => BONUSES,
+              'tiles_in_rack' => TILES_IN_RACK
   }
 
   METHODS.each do |key, value|
@@ -35,4 +37,3 @@ class Constant
     end
   end
 end
-

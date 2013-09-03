@@ -1,6 +1,6 @@
 class Command
   def self.execute(command)
-    command.downcase.force_encoding('utf-8')
+    command.downcase.force_encoding('utf-8') #code smells here
     case
     when command[0] == 'h'
       ['print_help']
@@ -8,7 +8,7 @@ class Command
       ['print_all_tiles']
     when command[0] == 'q'
       ['force_game_over']
-    when command[0] == 's'
+    when command[0..1] == 's '
       ['swap_tiles', command]
     when Constant.writing_regex =~ command
       ["word_controller", command]
@@ -29,4 +29,3 @@ class Command
     word.split('')
   end
 end
-
