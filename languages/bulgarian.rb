@@ -1,6 +1,10 @@
 module LanguageSet
   SERVER_URL = 'http://rechnik.info/'
+
+  MAIN_REGEX = /^\p{Cyrillic}$/i
+  CMD_REGEX = /^(1[0-5]|[0-9]),(1[0-5]|[0-9])\s[vh]\s[\p{Cyrillic}]+$/i
   NOT_FOUND_REGEX = /не\sе\sоткрита\sв\sречника/
+
   LABEL = 'bg'
 
   ALPHABET = { 'а' => [1, 17],
@@ -35,7 +39,4 @@ module LanguageSet
                'я' => [5, 4],
                '_' => [0, 0]
   }.freeze
-
-  MAIN_REGEX = /^\p{Cyrillic}$/i
-  CMD_REGEX = /^(1[0-5]|[0-9]),(1[0-5]|[0-9])\s[vh]\s[\p{Cyrillic}]+$/i
 end

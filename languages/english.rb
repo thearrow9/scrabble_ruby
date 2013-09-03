@@ -1,8 +1,13 @@
 module LanguageSet
   SERVER_URL = 'http://dictionary.cambridge.org/dictionary/british/'
+
   NOT_FOUND_REGEX = /not\sfound/
+  MAIN_REGEX = /^[a-z]$/i
+  CMD_REGEX = /^(1[0-5]|[1-9]),(1[0-5]|[1-9])\s[vh]\s[a-z]+$/i
+
   LABEL = 'en'
 
+  # 'char' => [points, quantities]
   ALPHABET = { 'a' => [6, 1],
                'b' => [4, 2],
                'c' => [4, 2],
@@ -31,7 +36,4 @@ module LanguageSet
                'z' => [4, 2],
                '_' => [0, 0]
   }
-
-  MAIN_REGEX = /^[a-z]$/i
-  CMD_REGEX = /^(1[0-5]|[1-9]),(1[0-5]|[1-9])\s[vh]\s[a-z]+$/i
 end
