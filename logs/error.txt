@@ -1,0 +1,8 @@
+/home/tihomir/Programs/Ruby/fmi_project/lib/output.rb:14:in `gets': Input/output error - <STDIN> (Errno::EIO)
+	from /home/tihomir/Programs/Ruby/fmi_project/lib/output.rb:14:in `gets'
+	from /home/tihomir/Programs/Ruby/fmi_project/lib/output.rb:14:in `prompt'
+	from /home/tihomir/Programs/Ruby/fmi_project/lib/core.rb:292:in `exec'
+	from /home/tihomir/Programs/Ruby/fmi_project/lib/core.rb:284:in `block in start_game'
+	from /home/tihomir/Programs/Ruby/fmi_project/lib/core.rb:280:in `loop'
+	from /home/tihomir/Programs/Ruby/fmi_project/lib/core.rb:280:in `start_game'
+	from scrabble.rb:4:in `<main>'
